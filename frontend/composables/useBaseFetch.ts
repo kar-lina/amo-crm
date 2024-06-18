@@ -1,5 +1,4 @@
-export const useBaseFetch: typeof useFetch = (request, opts?) => {
+export const useBaseFetch: typeof useFetch =  (request, opts?) => {
   const config = useRuntimeConfig();
-  
-  return useFetch(request, { baseURL: config.baseURL as string, ...opts });
+  return useFetch(request, { baseURL: config.public.apiBase as string, ...opts });
 };

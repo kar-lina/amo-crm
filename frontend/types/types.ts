@@ -1,19 +1,19 @@
 export type Contact = {
-	fullName: string;
-	tel: string;
+	id: number;
+	name: string;
+  phone?: number; 
 	email: string;
 };
-export enum LeadStatus {
-	CLOSED_NOT_FINISHED = 'Закрыто и не реализовано',
-	CLOSED_FINISHED = 'Закрыто и реализовано',
-	PEREGOVORY = 'Переговоры',
-	PROCESSING = 'Принимаем решение',
+export type LeadStatus = {
+	color: string;
+	id: number;
+	name: string;
 }
 export type Lead = {
+	id: number;
 	name: string;
-	budget: number;
+	price: number;
 	status: LeadStatus;
-	responsible: string;
-	date: Date;
+	created_at: number;
 	contact: Contact;
 };

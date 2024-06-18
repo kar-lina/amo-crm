@@ -1,23 +1,31 @@
 <template>
-  <v-card title="Leads" flat>
+  <v-card title="Сделки" flat>
     <template #text>
-      <v-text-field v-model="search" label="Search" prepend-inner-icon="mdi-magnify" variant="outlined" hide-details single-line />
+      <v-text-field v-model="search" label="Поиск" prepend-inner-icon="mdi-magnify" variant="outlined" hide-details single-line />
     </template>
-    <v-data-table v-model:expanded="expanded" :headers="headers" :items="leads ?? []" item-value="name" show-expand>
+    <v-data-table v-model:expanded="expanded" :headers="headers" :items="leads ?? []" :loading="pending" item-value="name" show-expand>
       <template v-slot:expanded-row="{ columns, item }">
         <tr>
-          <td :colspan="columns.length">More info about {{ item.name }}</td>
+          <td :colspan="columns.length">
+            <div class="flex gap-2">
+              <v-icon color="primary" aria-hidden="false"> mdi-account </v-icon>
+              {{ item.contact.name }}
+              <a v-if="item.contact.email" :href='`mailto:${item.contact.email}`'> <v-icon color="primary" aria-hidden="false"> mdi-email </v-icon> </a>
+              <a v-if="item.contact.phone" :href='`tel:${item.contact.phone}`' class="button"> <v-icon color="primary" aria-hidden="false"> mdi-phone </v-icon> </a>
+            </div>
+            <div></div>
+          </td>
         </tr>
       </template>
       <template v-slot:item.status="{ value }">
-        <v-chip :color="getColor(value)">
-          {{ value }}
+        <v-chip :color="value.color" >
+          {{ value.name }}
         </v-chip>
       </template>
-      <template v-slot:item.responsible="{ value }">
+      <template v-slot:item.contact="{ value }">
         <div>
-          <v-icon color='primary' aria-hidden="false"> mdi-account </v-icon>
-          {{ value }}
+          <v-icon color="primary" aria-hidden="false"> mdi-account </v-icon>
+          {{ value.name }}
         </div>
       </template>
     </v-data-table>
@@ -25,7 +33,6 @@
 </template>
 
 <script setup lang="ts">
-
 const expanded = ref([]);
 const headers = [
   {
@@ -34,71 +41,12 @@ const headers = [
     sortable: false,
     title: 'Название',
   },
-  { key: 'budget', title: 'Бюджет' },
+  { key: 'price', title: 'Бюджет' },
   { key: 'status', title: 'Статус' },
-  { key: 'responsible', title: 'Ответственный' },
-  // { key: 'contact', title: 'Дата' },
+  { key: 'contact', title: 'Ответственный' },
+  { key: 'created_at', title: 'Дата' },
 ];
-const search = ref<string>('');
-// const leads: Array<Lead> = 
-// const { pending, data: leads } = await useBaseFetch('/leads')
-const { pending, data: leads } = await useFetch('/leads', {baseURL: 'http://localhost:3001'})
-console.log('leads', leads);
 
-// const leads: Array<Lead> = [
-//   {
-//     name: 'First lead',
-//     budget: 1000,
-//     status: LeadStatus.PROCESSING,
-//     responsible: 'Ivanov',
-//     date: new Date(),
-//     contact: {
-//       fullName: 'Test',
-//       tel: '55555',
-//       email: 'eeeeeee',
-//     },
-//   },
-//   {
-//     name: 'First lead',
-//     budget: 1000,
-//     status: LeadStatus.CLOSED_FINISHED,
-//     responsible: 'Ivanov',
-//     date: new Date(),
-//     contact: {
-//       fullName: 'Test',
-//       tel: '55555',
-//       email: 'eeeeeee',
-//     },
-//   },
-//   {
-//     name: 'First lead',
-//     budget: 1000,
-//     status: LeadStatus.PEREGOVORY,
-//     responsible: 'Ivanov',
-//     date: new Date(),
-//     contact: {
-//       fullName: 'Test',
-//       tel: '55555',
-//       email: 'eeeeeee',
-//     },
-//   },
-//   {
-//     name: 'First lead',
-//     budget: 1000,
-//     status: LeadStatus.PROCESSING,
-//     responsible: 'Ivanov',
-//     date: new Date(),
-//     contact: {
-//       fullName: 'Test',
-//       tel: '55555',
-//       email: 'eeeeeee',
-//     },
-//   },
-// ];
-const getColor = (status: LeadStatus): string => {
-  if (status === LeadStatus.CLOSED_FINISHED) return 'teal-lighten-3';
-  else if (status === LeadStatus.CLOSED_NOT_FINISHED) return 'grey-lighten-2';
-  else if (status === LeadStatus.PEREGOVORY) return 'amber-lighten-3';
-  else return 'light-blue-lighten-3';
-};
+const search = useDebouncedRef('')
+const { pending, data: leads,  } = useBaseFetch('/leads', {query: {query: search}});
 </script>
